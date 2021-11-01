@@ -5,9 +5,11 @@ import argparse as ap
 parser = ap.ArgumentParser()
 parser.add_argument("file")
 args = parser.parse_args()
+inputCsv = args.file
 
-# Read a 
-df = pd.read_csv(args.file, encoding="utf-16-be", encoding_errors="ignore",index_col=False)
+
+# Read a csv
+df = pd.read_csv(inputCsv, encoding="utf-16-be", encoding_errors="ignore",index_col=False)
 
 # Drop columns that we don't need: Reason_other just says "Other", SubmittedDate is redundant
 # formid and consent_check are the same for every form, extras are exactly what they sound like, and the attachment ones are redundant
@@ -23,6 +25,9 @@ df.loc[df['reason_pharmacyVaccine'].notnull(), 'reason_pharmacyVaccine'] = "Doc/
 df['record1AttachmentContentType'] = df['record1AttachmentContentType'].replace({"image/jpeg": "Yes", "text/plain": np.nan})
 df['record2AttachmentContentType'] = df['record2AttachmentContentType'].replace({"image/jpeg": "Yes", "text/plain": np.nan})
 df = df.rename(columns={"record1AttachmentContentType": "Dose 1 Attachment", "record2AttachmentContentType": "Dose 2 Attachment"})
+
+# Change dateInquirySent to proper date format
+df['dateInquirySent'] = pd.to_datetime(df['dateInquirySent'], yearfirst=True)
 
 # Add new blank columns for things like notes, assignee, and status
 df = df.reindex(columns = df.columns.tolist() + ['Assigned to', 'Dose1 Entered', 'Notes', 'Status Change Date', 'Validation Req\'d', 'Status', 'Assigned date', 'Duplicated', 'Region'])
