@@ -7,13 +7,13 @@ parser.add_argument("file")
 args = parser.parse_args()
 inputCsv = args.file
 
-
 # Read a csv
+# If you get a "Expected x fields, saw x + 1 fields" error, it's a problem with the CSV (one of the rows has more fields than there are columns)
 df = pd.read_csv(inputCsv, encoding="utf-16-be", encoding_errors="ignore",index_col=False)
 
 # Drop columns that we don't need: Reason_other just says "Other", SubmittedDate is redundant
 # formid and consent_check are the same for every form, extras are exactly what they sound like, and the attachment ones are redundant
-df = df.drop(axis=1, columns=["reason_other", "SubmittedDate", "formid", "consent_check", "extra4", "extra5", "extra6", "extra7", "extra8", "extra9", "extra10", "Attachments", "record1AttachmentFileName", "record1AttachmentContentLength", "record2AttachmentFileName", "record2AttachmentContentLength", "inquiryForwardedTo", "dateInquiryCompleted"])
+df = df.drop(axis=1, columns=["reason_other", "SubmittedDate", "formid", "consent_check", "extra8", "extra9", "extra10", "Attachments", "record1AttachmentFileName", "record1AttachmentContentLength", "record2AttachmentFileName", "record2AttachmentContentLength", "inquiryForwardedTo", "dateInquiryCompleted"])
 
 # Replace the reasons with something a little more palatable for the sheet
 df.loc[df['reason_missingInfo'].notnull(), 'reason_missingInfo'] = "Missing Info"
@@ -31,7 +31,7 @@ df['dateInquirySent'] = pd.to_datetime(df['dateInquirySent'], yearfirst=True)
 
 # Add new blank columns for things like notes, assignee, and status
 df = df.reindex(columns = df.columns.tolist() + ['Assigned to', 'Assigned Date', 'Dose1 Entered', 'Notes', 'Status Change Date', 'Validation Req\'d', 'Status', 'Assigned date', 'Duplicated', 'Region'])
-df = df.reindex(columns = ["ConfirmationId", "dateInquirySent", "Assigned to", "Assigned Date", "Status", "Validation Req'd", "Status Change Date", "Notes", "covidOrSchool", "Dose1 Entered", "reason_missingInfo", "reason_outOfProvinceVaccine", "reason_requestCopy", "reason_pharmacyVaccine", "reasonForRequestOtherText", "name", "birthDate", "phin", "doNotHavePHIN", "phone", "email", "address", "city", "province", "postalCode", "RHA1", "locationDose1", "doNotRecallLoc1", "dateDose1", "doNotRecallDate1", "RHA2", "locationDose2", "doNotRecallLoc2", "dateDose2", "doNotRecallDate2", "schoolRequestDetails", "otherVaccines", "RHAOther", "locationDoseOther", "doNotRecallLocOther", "dateDoseOther", "doNotRecallDateOther", "Language", "Duplicated", "Region", "Dose 1 Attachment", "Dose 2 Attachment"])
+df = df.reindex(columns = ["ConfirmationId", "dateInquirySent", "Assigned to", "Assigned Date", "Status", "Validation Req'd", "Status Change Date", "Notes", "covidOrSchool", "Dose1 Entered", "reason_missingInfo", "reason_outOfProvinceVaccine", "reason_requestCopy", "reason_pharmacyVaccine", "reasonForRequestOtherText", "name", "birthDate", "phin", "doNotHavePHIN", "phone", "email", "address", "city", "province", "postalCode", "RHA1", "locationDose1", "doNotRecallLoc1", "dateDose1", "doNotRecallDate1", "RHA2", "locationDose2", "doNotRecallLoc2", "dateDose2", "doNotRecallDate2", "schoolRequestDetails", "otherVaccines", "RHAOther", "locationDoseOther", "doNotRecallLocOther", "dateDoseOther", "doNotRecallDateOther", "Language", "Duplicated", "Region", "Dose 1 Attachment", "Dose 2 Attachment", "phyisicanName", "physicianPhoneNumber", "physicianAddress"])
 
 # Finally, sort by ConfirmationId
 df = df.sort_values(by=['ConfirmationId'])
